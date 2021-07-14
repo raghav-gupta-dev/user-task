@@ -29,6 +29,7 @@ const HomePage = () => {
     const [addTaskModelOpen, setAddTaskModelOpen] = useState(false);
     const [updateTaskModelOpen, setUpdateTaskModelOpen] = useState(false);
     const [updateUserModelOpen, setUpdateUserModelOpen] = useState(false);
+    const [deleteUserModelOpen, setDeleteUserModelOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState({ username: null, task: null });
     const [Tasks, setTasks] = useState([]);
@@ -57,13 +58,14 @@ const HomePage = () => {
     }
 
 
-    const deleteUser = async (id) => {
-        const response = await axios.delete(`https://user-task-raghav.herokuapp.com/users/${id}/`)
+    const deleteUser = async () => {
+        const response = await axios.delete(`https://user-task-raghav.herokuapp.com/users/${userIdTask}/`)
         console.log(response.status)
         if (response.status === 200) {
             fetchUsers()
         }
         console.log(response)
+        setDeleteUserModelOpen(false)
     }
 
     const deleteTask = async (id) => {
@@ -85,6 +87,7 @@ const HomePage = () => {
             fetchUsers()
         }
         console.log(response)
+        setModelField("");
         setAddUserModelOpen(false)
     }
 
@@ -98,12 +101,13 @@ const HomePage = () => {
             fetchUsers()
         }
         console.log(response)
+        setModelField("");
         setAddTaskModelOpen(false)
     }
 
-    const updateUser = async (item) =>{
+    const updateUser = async (item) => {
         console.log(item, userIdTask)
-        const userData = {name:item}
+        const userData = { name: item }
 
         const response = await axios.put(`https://user-task-raghav.herokuapp.com/users/${userIdTask}/`, userData)
         console.log(response.status)
@@ -111,9 +115,10 @@ const HomePage = () => {
             fetchUsers()
         }
         console.log(response)
+        setModelField("")
         setUpdateUserModelOpen(false)
     }
- 
+
     const updateTask = async (item) => {
         console.log(item, userIdTask)
         const taskData = { taskName: item }
@@ -124,6 +129,7 @@ const HomePage = () => {
             fetchUsers()
         }
         console.log(response)
+        setModelField("")
         setUpdateTaskModelOpen(false)
     }
 
@@ -135,13 +141,21 @@ const HomePage = () => {
         setAddTaskModelOpen(prevState => !prevState);
     }
 
+    const closeUpdateTaskModel = () => {
+        setUpdateTaskModelOpen(prevState => !prevState)
+    }
+
+    const closeUpdateUserModel = () => {
+        setUpdateUserModelOpen(prevState => !prevState)
+    }
+
+    const closeDeleteUserModal = () => {
+        setDeleteUserModelOpen(prevState => !prevState);
+    }
+
     const addTaskHandler = (id) => {
         setUserIdTask(id)
         closeAddTaskModal()
-    }
-
-    const closeUpdateTaskModel = () => {
-        setUpdateTaskModelOpen(prevState => !prevState)
     }
 
     const updateTaskHandler = (task_id) => {
@@ -149,15 +163,40 @@ const HomePage = () => {
         closeUpdateTaskModel()
     }
 
-    const closeUpdateUserModel = () =>{
-        setUpdateUserModelOpen(prevState => !prevState)
-    }
-
     const updateUserHandler = (user_id) => {
         setUserIdTask(user_id)
         closeUpdateUserModel()
     }
 
+    const DeleteUserHandler = (user_id) => {
+        setUserIdTask(user_id)
+        closeDeleteUserModal()
+    }
+
+
+
+    const addTaskDrop = async (item, userIdTask) => {
+        setLoading(true)
+        console.log(item, userIdTask)
+        const taskData = { taskName: item, owner: userIdTask }
+
+        const response = await axios.post(`https://user-task-raghav.herokuapp.com/task/`, taskData)
+        console.log(response.status)
+        if (response.status === 201) {
+            fetchUsers()
+        }
+        console.log(response)
+        setAddTaskModelOpen(false)
+    }
+
+
+    const onDrop = (taskObject, DestinationUser) => {
+
+        if (DestinationUser) {
+            deleteTask(taskObject.id);
+            addTaskDrop(taskObject.task, DestinationUser);
+        }
+    }
 
     useEffect(() => {
         fetchUsers();
@@ -174,15 +213,18 @@ const HomePage = () => {
             <Grid container spacing={3}>
                 {Tasks.map(item => {
 
-                    return (<Grid item xs={12} md={6} lg={4}>
-                        <UserCard id={item.id} onDelete={deleteUser} username={item.username} tasks={item.tasks}
-                            setUserId={setUserId} userId={userId} deleteTask={deleteTask} onAddTask={addTask} handleAddTaskModal={addTaskHandler}
-                            handleUpdateTaskModal = {updateTaskHandler} handleUpdateUserModal = {updateUserHandler}
+                    return (<Grid item xs={12} md={6} lg={4} key={item.id}>
+                        <UserCard onDrop={onDrop} username={item.username} tasks={item.tasks} id={item.id} deleteTask={deleteTask}
+                            handleAddTaskModal={addTaskHandler} handleUpdateTaskModal={updateTaskHandler} handleUpdateUserModal={updateUserHandler}
+                            handleDeleteUserModal = {DeleteUserHandler}
+                            setUserId={setUserId} userId={userId}  onAddTask={addTask} 
                         />
                     </Grid >)
                 })}
 
             </Grid>
+
+
             <Modal open={addUserModelOpen} onCancelAction={closeAddUserModal} title="Add User" onConfirmAction={addUser} modelText={modelField}>
                 <TextField size="small" id="outlined-basic" label="Name" variant="outlined" onChange={event => setModelField(event.target.value)} value={modelField} />
             </Modal>
@@ -194,25 +236,24 @@ const HomePage = () => {
             <Modal open={updateTaskModelOpen} title="Update task for user" onCancelAction={closeUpdateTaskModel} onConfirmAction={updateTask} modelText={modelField}>
                 <TextField size="small" id="outlined-basic" label="Name" variant="outlined" onChange={event => setModelField(event.target.value)} value={modelField} />
             </Modal>
-            
+
             <Modal open={updateUserModelOpen} title="Update User Name" onCancelAction={closeUpdateUserModel} onConfirmAction={updateUser} modelText={modelField}>
                 <TextField size="small" id="outlined-basic" label="Name" variant="outlined" onChange={event => setModelField(event.target.value)} value={modelField} />
             </Modal>
 
+            <Modal open={deleteUserModelOpen} title="User will be deleted" onCancelAction={closeDeleteUserModal} onConfirmAction={deleteUser}>
+            </Modal>
+
         </div>
     )
- 
+
     return (
 
         <div>
             <div className={classes.NavBar}>
                 <NavBar buttonAction={closeAddUserModal} />
             </div>
-
             {!loading ? mainDiv : loadingDiv}
-
-
-
         </div>
     )
 }

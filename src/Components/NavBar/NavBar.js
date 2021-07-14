@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
-  image:{
-    height:'3rem',
-    marginRight:'1rem'
+  image: {
+    height: '3rem',
+    marginRight: '1rem'
   }
 }));
 
-export default function ButtonAppBar({ buttonAction}) {
+export default function ButtonAppBar({ buttonAction }) {
   const classes = useStyles();
 
   return (
@@ -31,12 +31,12 @@ export default function ButtonAppBar({ buttonAction}) {
       <AppBar position="static">
         <Toolbar>
           <div>
-            <img src = {logo} className={classes.image} alt="logo"/>
+            <img src={logo} className={classes.image} alt="logo" />
           </div>
           <Typography variant="h6" className={classes.title}>
             Todo App
           </Typography>
-          <Button color="inherit" onClick={()=>buttonAction()}>Add User</Button>
+          <Button color="inherit" onClick={() => buttonAction()}>Add User</Button>
         </Toolbar>
       </AppBar>
     </div>
