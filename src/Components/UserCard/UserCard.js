@@ -25,7 +25,7 @@ const useStyles = makeStyles({
   }
 });
 
-const UserCard = ({ onDrop, username, tasks, id, onDeleteUser, deleteTask, handleAddTaskModal, handleUpdateTaskModal, handleUpdateUserModal,
+const UserCard = ({ onDrop, username, tasks, id,  deleteTask, handleAddTaskModal, handleUpdateTaskModal, handleUpdateUserModal,
   handleDeleteUserModal }) => {
 
   const classes = useStyles();
