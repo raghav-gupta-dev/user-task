@@ -4,4 +4,4 @@ Users can create multiple task boards
 
 Users and tasks can be deleted, edited and added
 
-Python Backend with MongoDb as Database
+Python Backend using Flask and MongoDb as Database
